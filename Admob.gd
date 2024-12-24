@@ -79,11 +79,19 @@ const PLUGIN_SINGLETON_NAME: String = "@pluginName@"
 @export_range(1,100) var max_rewarded_ad_cache: int = 1: set = set_max_rewarded_ad_cache
 @export_range(1,100) var max_rewarded_interstitial_ad_cache: int = 1: set = set_max_rewarded_interstitial_ad_cache
 
-@onready var _banner_id: String = real_banner_id if is_real else debug_banner_id
-@onready var _interstitial_id: String = real_interstitial_id if is_real else debug_interstitial_id
-@onready var _rewarded_id: String = real_rewarded_id if is_real else debug_rewarded_id
-@onready var _rewarded_interstitial_id: String = real_rewarded_interstitial_id if is_real else debug_rewarded_interstitial_id
-
+var _banner_id: String:
+	get:
+		return real_banner_id if is_real else debug_banner_id
+var _interstitial_id: String:
+	get:
+		return real_interstitial_id if is_real else debug_interstitial_id
+var _rewarded_id: String:
+	get:
+		return real_rewarded_id if is_real else debug_rewarded_id
+var _rewarded_interstitial_id: String:
+	get:
+		return real_rewarded_interstitial_id if is_real else debug_rewarded_interstitial_id
+		
 var _plugin_singleton: Object
 
 var _active_banner_ads: Array
