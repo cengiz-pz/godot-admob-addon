@@ -20,57 +20,35 @@ const APP_ID_META_TAG = """
 var android_export_plugin: AndroidExportPlugin
 var ios_export_plugin: IosExportPlugin
 
+var _config : Dictionary = {}
 
 func _enter_tree() -> void:
 	print("[AdMob] Plugin loaded")
 	add_custom_type(PLUGIN_NODE_TYPE_NAME, PLUGIN_PARENT_NODE_TYPE, preload("%s.gd" % PLUGIN_NODE_TYPE_NAME), preload("icon.png"))
+	_config = AdmobEnv.new().config
 	android_export_plugin = AndroidExportPlugin.new()
+	android_export_plugin.add_config(_config)
 	add_export_plugin(android_export_plugin)
 	ios_export_plugin = IosExportPlugin.new()
+	ios_export_plugin.add_config(_config)
 	add_export_plugin(ios_export_plugin)
 
 
+func _printerr(error : String) -> void:
+	printerr("[AdMob Error] >> " + error)
+
+
+func _print(msg : String) -> void:
+	print("[AdMob] >> " + str(msg))
+
+
 class AdMobExportPlugin extends EditorExportPlugin:
-	var _config : Dictionary = {
-		"android": {
-			"test": {
-				"app_id":""
-			},
-			"prod": {
-				"app_id":""
-			},
-		},
-		"ios" :{
-			"test": {
-				"app_id":""
-			},
-			"prod": {
-				"app_id":""
-			},
-			"att_text": ""
-		},
-		"common" : {
-			"test": true
-		}
+	var _config:Dictionary
+
+
+	func add_config(config:Dictionary) : {
+		_config = config
 	}
-
-	func _init() -> void:
-		_load_config()
-
-	func _load_config() -> void:
-		var env = ConfigFile.new()
-		var err = env.load("res://addons/AdmobPlugin/.env")
-		if err == OK:
-			for key in _config.keys():
-				var config_value = _config[key]
-				for value in config_value.keys():
-					if typeof(config_value[value]) == TYPE_DICTIONARY:
-						for param in config_value[value].keys():
-							config_value[value][param] = env.get_value("%s/%s" % [key,value], param, "")
-					else:
-						config_value[value] = env.get_value("%s" % [key], value, "")
-		else:
-			_printerr("Unable to read .env file at path 'res://addons/AdMob/.env'")
 
 
 	func _printerr(error : String) -> void:
