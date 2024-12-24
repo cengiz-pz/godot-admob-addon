@@ -48,7 +48,6 @@ signal tracking_authorization_denied
 const PLUGIN_SINGLETON_NAME: String = "@pluginName@"
 
 @export_category("General")
-@export var is_real: bool: set = set_is_real
 @export var max_ad_content_rating: AdmobConfig.ContentRating = AdmobConfig.ContentRating.G: set = set_max_ad_content_rating
 @export var child_directed: AdmobConfig.TagForChildDirectedTreatment = AdmobConfig.TagForChildDirectedTreatment.UNSPECIFIED: set = set_child_directed
 @export var under_age_of_consent: AdmobConfig.TagForUnderAgeOfConsent = AdmobConfig.TagForUnderAgeOfConsent.UNSPECIFIED: set = set_under_age_of_consent
@@ -60,38 +59,39 @@ const PLUGIN_SINGLETON_NAME: String = "@pluginName@"
 @export var banner_position: LoadAdRequest.AdPosition = LoadAdRequest.AdPosition.TOP: set = set_banner_position
 @export var banner_size: LoadAdRequest.AdSize = LoadAdRequest.AdSize.BANNER: set = set_banner_size
 
-@export_category("Ad Unit IDs")
-@export_group("Debug IDs", "debug_")
-@export var debug_banner_id: String
-@export var debug_interstitial_id: String
-@export var debug_rewarded_id: String
-@export var debug_rewarded_interstitial_id: String
-
-@export_group("Real IDs", "real_")
-@export var real_banner_id: String
-@export var real_interstitial_id: String
-@export var real_rewarded_id: String
-@export var real_rewarded_interstitial_id: String
-
 @export_group("Cache")
 @export_range(1,100) var max_banner_ad_cache: int = 1: set = set_max_banner_ad_cache
 @export_range(1,100) var max_interstitial_ad_cache: int = 1: set = set_max_interstitial_ad_cache
 @export_range(1,100) var max_rewarded_ad_cache: int = 1: set = set_max_rewarded_ad_cache
 @export_range(1,100) var max_rewarded_interstitial_ad_cache: int = 1: set = set_max_rewarded_interstitial_ad_cache
 
+var is_real: bool:
+	get:
+		return not _config["common"]["test"]
+		
+var _env: String = "test":
+	get:
+		return "prod" if is_real else "test"
+
+var _os: String:
+	get:
+		return OS.get_name().to_lower()
+
 var _banner_id: String:
 	get:
-		return real_banner_id if is_real else debug_banner_id
+		return _config[_os][_env]["banner_id"]
+
 var _interstitial_id: String:
 	get:
-		return real_interstitial_id if is_real else debug_interstitial_id
+		return _config[_os][_env]["interstitial_id"]
+
 var _rewarded_id: String:
 	get:
-		return real_rewarded_id if is_real else debug_rewarded_id
+		return _config[_os][_env]["rewarded_id"]
+
 var _rewarded_interstitial_id: String:
 	get:
-		return real_rewarded_interstitial_id if is_real else debug_rewarded_interstitial_id
-		
+		return _config[_os][_env]["rewarded_interstitial_id"]		
 var _plugin_singleton: Object
 
 var _active_banner_ads: Array
