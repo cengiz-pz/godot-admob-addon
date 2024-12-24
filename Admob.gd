@@ -92,7 +92,9 @@ var _rewarded_id: String:
 var _rewarded_interstitial_id: String:
 	get:
 		return _config[_os][_env]["rewarded_interstitial_id"]		
+
 var _plugin_singleton: Object
+var _config: Dictionary
 
 var _active_banner_ads: Array
 var _active_interstitial_ads: Array
@@ -105,6 +107,7 @@ func _init() -> void:
 	_active_interstitial_ads = []
 	_active_rewarded_ads = []
 	_active_rewarded_interstitial_ads = []
+	_config = AdmobEnv.new().config
 
 
 func _ready() -> void:
