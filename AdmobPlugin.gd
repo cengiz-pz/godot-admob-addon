@@ -5,10 +5,9 @@
 @tool
 extends EditorPlugin
 
-const PLUGIN_NODE_TYPE_NAME = "Admob"
+const PLUGIN_NODE_TYPE_NAME = "@pluginNodeName@"
 const PLUGIN_PARENT_NODE_TYPE = "Node"
-const PLUGIN_NAME: String = "AdmobPlugin"
-const PLUGIN_VERSION: String = "3.2"
+const PLUGIN_NAME: String = "@pluginName@"
 
 const APP_ID_META_TAG = """
 <meta-data
