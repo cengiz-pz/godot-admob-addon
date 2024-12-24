@@ -81,7 +81,7 @@ class AdMobExportPlugin extends EditorExportPlugin:
 
 
 class AndroidExportPlugin extends AdMobExportPlugin:
-	const PLUGIN_DEPENDENCIES: Array = [ "androidx.appcompat:appcompat:1.7.0", "com.google.android.gms:play-services-ads:23.5.0" ]
+	const PLUGIN_DEPENDENCIES: Array = [ @pluginDependencies@ ]
 
 	var _plugin_name = PLUGIN_NAME
 
@@ -334,7 +334,7 @@ class IosExportPlugin extends EditorExportPlugin:
 		add_ios_plist_content("<key>GADApplicationIdentifier</key>")
 		add_ios_plist_content("\t<string>%s</string>" % (_config["ios"]["test"]["app_id"] if _config["common"]["test"] else _config["ios"]["prod"]["app_id"]))
 
-		if Constants.ATT_TEXT:
+		if _config["ios"]["att_text"]:
 			add_ios_plist_content("<key>NSUserTrackingUsageDescription</key>")
 			add_ios_plist_content("<string>%s</string>" % _config["ios"]["att_text"])
 
