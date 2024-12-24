@@ -70,14 +70,12 @@ const PLUGIN_SINGLETON_NAME: String = "@pluginName@"
 
 @export_category("Ad Unit IDs")
 @export_group("Debug IDs", "debug_")
-@export var debug_application_id: String
 @export var debug_banner_id: String
 @export var debug_interstitial_id: String
 @export var debug_rewarded_id: String
 @export var debug_rewarded_interstitial_id: String
 
 @export_group("Real IDs", "real_")
-@export var real_application_id: String
 @export var real_banner_id: String
 @export var real_interstitial_id: String
 @export var real_rewarded_id: String
