@@ -27,10 +27,8 @@ func _enter_tree() -> void:
 	add_custom_type(PLUGIN_NODE_TYPE_NAME, PLUGIN_PARENT_NODE_TYPE, preload("%s.gd" % PLUGIN_NODE_TYPE_NAME), preload("icon.png"))
 	_config = AdmobEnv.new().config
 	android_export_plugin = AndroidExportPlugin.new()
-	android_export_plugin.add_config(_config)
 	add_export_plugin(android_export_plugin)
 	ios_export_plugin = IosExportPlugin.new()
-	ios_export_plugin.add_config(_config)
 	add_export_plugin(ios_export_plugin)
 
 
@@ -46,9 +44,9 @@ class AdMobExportPlugin extends EditorExportPlugin:
 	var _config:Dictionary
 
 
-	func add_config(config:Dictionary) : {
-		_config = config
-	}
+	func _init() -> void:
+		_print("Initializing export plugin")
+		_config = AdmobEnv.new().config
 
 
 	func _printerr(error : String) -> void:
