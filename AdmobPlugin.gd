@@ -8,6 +8,7 @@ extends EditorPlugin
 const PLUGIN_NODE_TYPE_NAME = "@pluginNodeName@"
 const PLUGIN_PARENT_NODE_TYPE = "Node"
 const PLUGIN_NAME: String = "@pluginName@"
+const PLUGIN_VERSION: String = "3.2"
 
 const APP_ID_META_TAG = """
 <meta-data
@@ -19,24 +20,44 @@ const APP_ID_META_TAG = """
 var android_export_plugin: AndroidExportPlugin
 var ios_export_plugin: IosExportPlugin
 
+var _config : Dictionary = {}
 
 func _enter_tree() -> void:
+	print("[AdMob] Plugin loaded")
 	add_custom_type(PLUGIN_NODE_TYPE_NAME, PLUGIN_PARENT_NODE_TYPE, preload("%s.gd" % PLUGIN_NODE_TYPE_NAME), preload("icon.png"))
+	_config = AdmobEnv.new().config
 	android_export_plugin = AndroidExportPlugin.new()
 	add_export_plugin(android_export_plugin)
 	ios_export_plugin = IosExportPlugin.new()
 	add_export_plugin(ios_export_plugin)
 
 
-func _exit_tree() -> void:
-	remove_custom_type(PLUGIN_NODE_TYPE_NAME)
-	remove_export_plugin(android_export_plugin)
-	android_export_plugin = null
-	remove_export_plugin(ios_export_plugin)
-	ios_export_plugin = null
+func _printerr(error : String) -> void:
+	printerr("[AdMob Error] >> " + error)
 
 
-class AndroidExportPlugin extends EditorExportPlugin:
+func _print(msg : String) -> void:
+	print("[AdMob] >> " + str(msg))
+
+
+class AdMobExportPlugin extends EditorExportPlugin:
+	var _config:Dictionary
+
+
+	func _init() -> void:
+		_print("Initializing export plugin")
+		_config = AdmobEnv.new().config
+
+
+	func _printerr(error : String) -> void:
+		printerr("[AdMob Error] >> " + error)
+
+
+	func _print(msg : String) -> void:
+		print("[AdMob] >> " + str(msg))
+
+
+class AndroidExportPlugin extends AdMobExportPlugin:
 	const PLUGIN_DEPENDENCIES: Array = [ @pluginDependencies@ ]
 
 	var _plugin_name = PLUGIN_NAME
@@ -50,9 +71,9 @@ class AndroidExportPlugin extends EditorExportPlugin:
 
 	func _get_android_libraries(platform: EditorExportPlatform, debug: bool) -> PackedStringArray:
 		if debug:
-			return PackedStringArray(["%s/bin/debug/%s-debug.aar" % [_plugin_name, _plugin_name]])
+			return PackedStringArray(["%s/bin/debug/%s-%s-debug.aar" % [_plugin_name, _plugin_name, PLUGIN_VERSION]])
 		else:
-			return PackedStringArray(["%s/bin/release/%s-release.aar" % [_plugin_name, _plugin_name]])
+			return PackedStringArray(["%s/bin/release/%s-%s-release.aar" % [_plugin_name, _plugin_name, PLUGIN_VERSION]])
 
 
 	func _get_name() -> String:
@@ -64,14 +85,7 @@ class AndroidExportPlugin extends EditorExportPlugin:
 
 
 	func _get_android_manifest_application_element_contents(platform: EditorExportPlatform, debug: bool) -> String:
-		var __admob_node: Admob = Admob.get_admob_node(EditorInterface.get_edited_scene_root())
-		if not __admob_node:
-			var main_scene = load(ProjectSettings.get_setting("application/run/main_scene")).instantiate()
-			__admob_node = Admob.get_admob_node(main_scene)
-			if not __admob_node:
-				push_error("%s failed to find %s node!" % [PLUGIN_NAME, PLUGIN_NODE_TYPE_NAME])
-
-		return APP_ID_META_TAG % (__admob_node.real_application_id if __admob_node.is_real else __admob_node.debug_application_id)
+		return APP_ID_META_TAG % (_config["android"]["test"]["app_id"] if _config["common"]["test"] else _config["android"]["prod"]["app_id"])
 
 
 class IosExportPlugin extends EditorExportPlugin:
@@ -293,13 +307,13 @@ class IosExportPlugin extends EditorExportPlugin:
 
 
 	func _export_begin(features: PackedStringArray, is_debug: bool, path: String, flags: int) -> void:
-		var __admob_node: Admob = Admob.get_admob_node(EditorInterface.get_edited_scene_root())
+		_print("AdMod plugin export")
 		add_ios_plist_content("<key>GADApplicationIdentifier</key>")
-		add_ios_plist_content("\t<string>%s</string>" % (__admob_node.real_application_id if __admob_node.is_real else __admob_node.debug_application_id))
+		add_ios_plist_content("\t<string>%s</string>" % (_config["ios"]["test"]["app_id"] if _config["common"]["test"] else _config["ios"]["prod"]["app_id"]))
 
-		if __admob_node.att_text and not __admob_node.att_text.is_empty():
+		if _config["ios"]["att_text"]:
 			add_ios_plist_content("<key>NSUserTrackingUsageDescription</key>")
-			add_ios_plist_content("<string>%s</string>" % __admob_node.att_text)
+			add_ios_plist_content("<string>%s</string>" % _config["ios"]["att_text"])
 
 		add_ios_plist_content("\t<key>SKAdNetworkItems</key>")
 		add_ios_plist_content("%s" % SK_AD_NETWORK_ITEMS)
