@@ -731,18 +731,3 @@ func _on_tracking_authorization_granted() -> void:
 
 func _on_tracking_authorization_denied() -> void:
 	tracking_authorization_denied.emit()
-
-
-static func get_admob_node(a_node: Node) -> Admob:
-	var __result: Admob
-
-	if a_node is Admob:
-		__result = a_node
-	elif a_node.get_child_count() > 0:
-		for __child in a_node.get_children():
-			var __child_result = get_admob_node(__child)
-			if __child_result is Admob:
-				__result = __child_result
-				break
-
-	return __result 

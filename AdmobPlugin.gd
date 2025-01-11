@@ -40,6 +40,7 @@ class AndroidExportPlugin extends EditorExportPlugin:
 	const PLUGIN_DEPENDENCIES: Array = [ @pluginDependencies@ ]
 
 	var _plugin_name = PLUGIN_NAME
+	var _export_config: AdmobExportConfig
 
 
 	func _supports_platform(platform: EditorExportPlatform) -> bool:
@@ -59,19 +60,18 @@ class AndroidExportPlugin extends EditorExportPlugin:
 		return _plugin_name
 
 
+	func _export_begin(features: PackedStringArray, is_debug: bool, path: String, flags: int) -> void:
+		_export_config = AdmobExportConfig.new()
+		if not _export_config.export_config_file_exists() or _export_config.load_export_config_from_file() != OK:
+			_export_config.load_export_config_from_node()
+
+
 	func _get_android_dependencies(platform: EditorExportPlatform, debug: bool) -> PackedStringArray:
 		return PackedStringArray(PLUGIN_DEPENDENCIES)
 
 
 	func _get_android_manifest_application_element_contents(platform: EditorExportPlatform, debug: bool) -> String:
-		var __admob_node: Admob = Admob.get_admob_node(EditorInterface.get_edited_scene_root())
-		if not __admob_node:
-			var main_scene = load(ProjectSettings.get_setting("application/run/main_scene")).instantiate()
-			__admob_node = Admob.get_admob_node(main_scene)
-			if not __admob_node:
-				push_error("%s failed to find %s node!" % [PLUGIN_NAME, PLUGIN_NODE_TYPE_NAME])
-
-		return APP_ID_META_TAG % (__admob_node.real_application_id if __admob_node.is_real else __admob_node.debug_application_id)
+		return APP_ID_META_TAG % (_export_config.real_application_id if _export_config.is_real else _export_config.debug_application_id)
 
 
 class IosExportPlugin extends EditorExportPlugin:
@@ -293,13 +293,16 @@ class IosExportPlugin extends EditorExportPlugin:
 
 
 	func _export_begin(features: PackedStringArray, is_debug: bool, path: String, flags: int) -> void:
-		var __admob_node: Admob = Admob.get_admob_node(EditorInterface.get_edited_scene_root())
-		add_ios_plist_content("<key>GADApplicationIdentifier</key>")
-		add_ios_plist_content("\t<string>%s</string>" % (__admob_node.real_application_id if __admob_node.is_real else __admob_node.debug_application_id))
+		var __export_config = AdmobExportConfig.new()
+		if not __export_config.export_config_file_exists() or __export_config.load_export_config_from_file() != OK:
+			__export_config.load_export_config_from_node()
 
-		if __admob_node.att_text and not __admob_node.att_text.is_empty():
+		add_ios_plist_content("<key>GADApplicationIdentifier</key>")
+		add_ios_plist_content("\t<string>%s</string>" % (__export_config.real_application_id if __export_config.is_real else __export_config.debug_application_id))
+
+		if __export_config.att_text and not __export_config.att_text.is_empty():
 			add_ios_plist_content("<key>NSUserTrackingUsageDescription</key>")
-			add_ios_plist_content("<string>%s</string>" % __admob_node.att_text)
+			add_ios_plist_content("<string>%s</string>" % __export_config.att_text)
 
 		add_ios_plist_content("\t<key>SKAdNetworkItems</key>")
 		add_ios_plist_content("%s" % SK_AD_NETWORK_ITEMS)
