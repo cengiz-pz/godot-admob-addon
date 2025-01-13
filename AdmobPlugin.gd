@@ -300,7 +300,7 @@ class IosExportPlugin extends EditorExportPlugin:
 		add_ios_plist_content("<key>GADApplicationIdentifier</key>")
 		add_ios_plist_content("\t<string>%s</string>" % (__export_config.real_application_id if __export_config.is_real else __export_config.debug_application_id))
 
-		if __export_config.att_text and not __export_config.att_text.is_empty():
+		if __export_config.att_enabled and __export_config.att_text and not __export_config.att_text.is_empty():
 			add_ios_plist_content("<key>NSUserTrackingUsageDescription</key>")
 			add_ios_plist_content("<string>%s</string>" % __export_config.att_text)
 
