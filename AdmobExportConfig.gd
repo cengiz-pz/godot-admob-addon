@@ -1,3 +1,7 @@
+#
+# © 2024-present https://github.com/cengiz-pz
+#
+
 class_name AdmobExportConfig extends RefCounted
 
 const PLUGIN_NODE_TYPE_NAME = "@pluginNodeName@"
