@@ -46,6 +46,7 @@ signal tracking_authorization_granted
 signal tracking_authorization_denied
 
 const PLUGIN_SINGLETON_NAME: String = "@pluginName@"
+const PLUGIN_TARGET_OS: String = "@targetOs"
 
 @export_category("General")
 @export var is_real: bool: set = set_is_real
@@ -89,6 +90,12 @@ const PLUGIN_SINGLETON_NAME: String = "@pluginName@"
 @export_range(1,100) var max_rewarded_ad_cache: int = 1: set = set_max_rewarded_ad_cache
 @export_range(1,100) var max_rewarded_interstitial_ad_cache: int = 1: set = set_max_rewarded_interstitial_ad_cache
 
+@export_group("Cleanup")
+@export var remove_banner_ads_after_scene: bool = true
+@export var remove_interstitial_ads_after_scene: bool = true
+@export var remove_rewarded_ads_after_scene: bool = true
+@export var remove_rewarded_interstitial_ads_after_scene: bool = true
+
 @onready var _banner_id: String = real_banner_id if is_real else debug_banner_id
 @onready var _interstitial_id: String = real_interstitial_id if is_real else debug_interstitial_id
 @onready var _rewarded_id: String = real_rewarded_id if is_real else debug_rewarded_id
@@ -113,6 +120,24 @@ func _ready() -> void:
 	_update_plugin()
 
 
+func _exit_tree() -> void:
+	if remove_banner_ads_after_scene:
+		for __ad_id in _active_banner_ads:
+			remove_banner_ad(__ad_id)
+
+	if remove_interstitial_ads_after_scene:
+		for __ad_id in _active_interstitial_ads:
+			remove_interstitial_ad(__ad_id)
+
+	if remove_rewarded_ads_after_scene:
+		for __ad_id in _active_rewarded_ads:
+			remove_rewarded_ad(__ad_id)
+
+	if remove_rewarded_interstitial_ads_after_scene:
+		for __ad_id in _active_rewarded_interstitial_ads:
+			remove_rewarded_interstitial_ad(__ad_id)
+
+
 func _notification(a_what: int) -> void:
 	if a_what == NOTIFICATION_APPLICATION_RESUMED:
 		_update_plugin()
@@ -123,8 +148,10 @@ func _update_plugin() -> void:
 		if Engine.has_singleton(PLUGIN_SINGLETON_NAME):
 			_plugin_singleton = Engine.get_singleton(PLUGIN_SINGLETON_NAME)
 			_connect_signals()
-		else:
+		elif OS.has_feature(PLUGIN_TARGET_OS):
 			printerr("%s singleton not found!" % PLUGIN_SINGLETON_NAME)
+		else:
+			printerr("%s plugin should be run on %s!" % [PLUGIN_SINGLETON_NAME, PLUGIN_TARGET_OS])
 
 
 func _connect_signals() -> void:
