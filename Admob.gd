@@ -46,7 +46,7 @@ signal tracking_authorization_granted
 signal tracking_authorization_denied
 
 const PLUGIN_SINGLETON_NAME: String = "@pluginName@"
-const PLUGIN_TARGET_OS: String = "@targetOs"
+const PLUGIN_TARGET_OS: String = "@targetOs@"
 
 @export_category("General")
 @export var is_real: bool: set = set_is_real
