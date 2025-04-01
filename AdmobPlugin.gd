@@ -71,7 +71,15 @@ class AndroidExportPlugin extends EditorExportPlugin:
 
 
 	func _get_android_manifest_application_element_contents(platform: EditorExportPlatform, debug: bool) -> String:
-		return APP_ID_META_TAG % (_export_config.real_application_id if _export_config.is_real else _export_config.debug_application_id)
+		var __contents: String
+	
+		if _export_config:
+			__contents = APP_ID_META_TAG % (_export_config.real_application_id if _export_config.is_real else _export_config.debug_application_id)
+		else:
+			push_warning("Export config not found for %s!" % _plugin_name)
+			__contents = ""
+
+		return __contents
 
 
 class IosExportPlugin extends EditorExportPlugin:
